@@ -7,12 +7,19 @@ default:
 # Lint the codebase using ruff
 [group("dev")]
 lint:
+    # Lint the code
     ruff check
+    # Run static checks
+    pyright src
 
 # Format the codebase using ruff
 [group("dev")]
 format:
-    """Auto‑format code with black."""
+    # Fix generic linting issues
+    ruff check --fix-only
+    # Fix import-related issues (including ordering)
+    ruff check --select=I --fix-only
+    # Format the code
     ruff format
 
 # Build the project

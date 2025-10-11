@@ -3,13 +3,12 @@
 # captain_file.py
 from __future__ import annotations
 
-import yaml
 from dataclasses import asdict, dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import ClassVar, List, Type, TypeVar
 
+import yaml
 from platformdirs import user_config_dir, user_data_dir
-
 from rich.console import Console
 
 T = TypeVar("T", bound="CaptainFile")

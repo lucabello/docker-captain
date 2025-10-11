@@ -10,21 +10,19 @@ A small CLI wrapper around `docker compose` for projects organized under ~/Deplo
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import Dict, List
 
 import questionary
-from questionary import Choice
-import sh
 import typer
+from questionary import Choice
 from rich import box
 from rich.console import Console
 from rich.table import Table
 
+from docker_captain.config import CaptainData
 from docker_captain.docker import DockerCompose
-from docker_captain.config import CaptainConfig, CaptainData
 
 # ---------------------------------------------------------------------------
 # Configuration

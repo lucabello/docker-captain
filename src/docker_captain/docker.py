@@ -1,8 +1,9 @@
-from typing import List, Literal
 import json
+from pathlib import Path
+from typing import List, Literal
+
 import sh
 from rich.console import Console
-from pathlib import Path
 
 console = Console()
 
