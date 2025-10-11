@@ -7,7 +7,7 @@ from pathlib import Path
 console = Console()
 
 try:
-    docker_compose: sh.Command = sh.Command("docker compose")
+    docker_compose: sh.Command = sh.Command("docker", "compose")
 except sh.CommandNotFound as e:
     console.print(f"[red]Error: '{e}' not found.[/red]")
     exit(1)
@@ -24,7 +24,7 @@ class DockerCompose:
             List[str]: Subset of the passed projects that are currently running.
         """
         try:
-            result = docker_compose.ls(format="json", _ok_code=[0, 1])
+            result = sh.docker.compose.ls(format="json", _ok_code=[0, 1])
             data = json.loads(str(result))
             running = []
             for item in data:
