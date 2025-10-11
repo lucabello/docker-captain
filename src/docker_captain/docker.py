@@ -6,12 +6,6 @@ from pathlib import Path
 
 console = Console()
 
-try:
-    docker_compose: sh.Command = sh.Command("docker", "compose")
-except sh.CommandNotFound as e:
-    console.print(f"[red]Error: '{e}' not found.[/red]")
-    exit(1)
-
 
 class DockerCompose:
     """Wrapper around 'docker compose' commands."""
@@ -24,7 +18,7 @@ class DockerCompose:
             List[str]: Subset of the passed projects that are currently running.
         """
         try:
-            result = sh.docker.compose.ls(format="json", _ok_code=[0, 1])
+            result = sh.docker.compose.ls(format="json", _ok_code=[0, 1])  # pyright: ignore[reportAttributeAccessIssue]
             data = json.loads(str(result))
             running = []
             for item in data:
@@ -32,6 +26,9 @@ class DockerCompose:
                 if name and item.get("Status", "").lower().startswith("running"):
                     running.append(name)
             return running
+        except sh.CommandNotFound as e:
+            console.print(f"[red]'{e}' command not found.[/red]")
+            return []
         except Exception as e:
             console.print(
                 f"[yellow]Warning: could not determine running projects ({e})[/yellow]"
@@ -108,14 +105,17 @@ class DockerCompose:
             f"[bold blue]{action.upper()} {compose_file.parent.name}[/bold blue]"
         )
         try:
-            docker_compose(action, file=compose_file, _fg=True, **kwargs)
+            sh.docker.compose(action, file=compose_file, _fg=True, **kwargs)  # pyright: ignore[reportAttributeAccessIssue]
             console.print(
                 f":white_check_mark: [green]{action} succeeded for {compose_file.parent.name}[/green]"
             )
             return 0
+        except sh.CommandNotFound as e:
+            console.print(f"[red]'{e}' command not found.[/red]")
+            return 1
         except sh.ErrorReturnCode as e:
             console.print(f"[red]Command failed with exit code {e.exit_code}[/red]")
             return int(e.exit_code)
         except Exception as e:
             console.print(f"[red]Error executing docker compose: {e}[/red]")
-            return 1
+            return 2
