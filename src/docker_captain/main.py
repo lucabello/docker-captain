@@ -33,7 +33,7 @@ console = Console()
 # ---------------------------------------------------------------------------
 
 
-@app.command()
+@app.command(rich_help_panel="Manage")
 def list(
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show compose file paths."),
 ) -> None:
@@ -66,7 +66,7 @@ def list(
     console.print(table)
 
 
-@app.command()
+@app.command(rich_help_panel="Manage")
 def manage() -> None:
     """Interactively select which projects are active."""
     projects_folder = CaptainProject.projects_folder()
@@ -203,7 +203,7 @@ def abandon(
     raise typer.Exit(code=exit_code)
 
 
-@app.command()
+@app.command(rich_help_panel="Utils and Configs")
 def configure() -> None:
     """Interactively write a configuration file."""
     CaptainConfig.interactive()
