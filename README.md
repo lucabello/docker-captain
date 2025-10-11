@@ -8,6 +8,8 @@ It's powered by [Typer](https://typer.tiangolo.com/), [Questionary](https://gith
 
 ## 🚀 Features
 
+For a quick overview of the available commands, run `docker-captain --help`.
+
 ### 🔍 Project Auto-Detection
 `docker-captain` automatically detects any subfolder containing a Docker Compose file — such as `compose.yaml`, `compose.yml`, `docker-compose.yaml`, or `docker-compose.yml`.  
 It scans the folder passed in the `DOCKER_CAPTAIN_PROJECTS` environment variable, which you can export here:
