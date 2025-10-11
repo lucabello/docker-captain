@@ -1,6 +1,6 @@
 [project]
 name = "docker-captain"
-version = "0.0.2"
+version = "0.0.3"
 license = "Apache-2.0"
 license-files = ["LICEN[CS]E.*"]
 authors = [
@@ -18,7 +18,7 @@ dependencies = [
     "typer>=0.19.2",
 ]
 
-[proejct.urls]
+[project.urls]
 Homepage = "https://github.com/lucabello/docker-captain"
 Repository = "https://github.com/lucabello/docker-captain"
 Issues = "https://github.com/lucabello/docker-captain/issues"

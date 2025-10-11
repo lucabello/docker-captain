@@ -39,7 +39,18 @@ clean:
     # Remove coverage reports
     rm -f .coverage coverage.xml
 
-# Release to PyPi
+# Create a GitHub release (which will trigger a PyPi release)
 [group("release")]
-release: clean build
-    uv publish
+release:
+    #!/usr/bin/env bash
+    latest_release="$(gh release list --limit=1 --order=desc --json=tagName | jq -r '.[].tagName')"
+    echo "Latest release on GitHub is ${latest_release}"
+    pyproject_release="$(yq -oy .project.version pyproject.toml)"
+    echo "Current version in pyproject.toml is v${pyproject_release}"
+    echo
+    read -p "Proceed releasing v${pyproject_release}? (y/n): " answer
+    if [[ ! "$answer" == [Yy] ]] ; then
+        echo "Cancelled."
+        exit 1
+    fi
+    gh release create v${pyproject_release} --generate-notes --notes-start-tag=v${pyproject_release}
