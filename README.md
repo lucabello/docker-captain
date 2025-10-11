@@ -12,10 +12,10 @@ For a quick overview of the available commands, run `docker-captain --help`.
 
 ### 🔍 Project Auto-Detection
 `docker-captain` automatically detects any subfolder containing a Docker Compose file — such as `compose.yaml`, `compose.yml`, `docker-compose.yaml`, or `docker-compose.yml`.  
-It scans the folder passed in the `DOCKER_CAPTAIN_PROJECTS` environment variable, which you can export here:
+It scans the folder specified in the configuration file, or passed in the `DOCKER_CAPTAIN_PROJECTS` environment variable, which you can export here:
 
 ```bash
-export DOCKER_CAPTAIN_PROJECTS=/path/to/your/deployments
+export DOCKER_CAPTAIN_PROJECTS=/path/to/your/deployments  # takes precedence over the config file
 ```
 
 Detection is purely based on the file names — if a folder contains one of those Compose files, it’s recognized as a valid “project”, taking its name from the folder.
@@ -98,6 +98,18 @@ uvx docker-captain
 ```
 
 ---
+
+## 🗒️ Configuration
+
+`captain-docker` support a simple YAML config file with the following structure:
+
+```yaml
+# ~/.config/docker-captain/config.yaml (on Linux)
+projects_folder: /path/to/your/deployments  # environment variable: DOCKER_CAPTAIN_PROJECTS_FOLDER
+```
+
+---
+
 
 ## 🧭 Folder Structure Example
 

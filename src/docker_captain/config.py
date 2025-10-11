@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import ClassVar, List, Type, TypeVar
+from typing import ClassVar, List, Optional, Type, TypeVar
 
 import yaml
 from platformdirs import user_config_dir, user_data_dir
@@ -77,17 +77,19 @@ class CaptainFile:
 
 @dataclass
 class CaptainConfig(CaptainFile):
+    """Data model of the docker-captain configuration file."""
+
     DEFAULT_PATH: ClassVar[Path] = (
         Path(user_config_dir(appname="docker-captain", appauthor=False)) / "config.yaml"
     )
 
-    theme: str = "light"
-    auto_update: bool = True
-    recent_files: List[Path] = field(default_factory=list)
+    projects_folder: Optional[Path] = None
 
 
 @dataclass
 class CaptainData(CaptainFile):
+    """Data model of the docker-captain data."""
+
     DEFAULT_PATH: ClassVar[Path] = (
         Path(user_data_dir(appname="docker-captain", appauthor=False)) / "data.yaml"
     )

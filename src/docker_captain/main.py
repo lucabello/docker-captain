@@ -1,6 +1,9 @@
 """
-docker-captain
-A small CLI wrapper around `docker compose`
+A friendly CLI tool for managing multiple Docker Compose projects.
+
+docker-captain detects projects automatically, lets you mark them as active,
+and provides simple commands to start, stop, restart, or list your deployments
+— individually or all at once.
 """
 
 from __future__ import annotations
@@ -16,23 +19,30 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from docker_captain.config import CaptainData
+from docker_captain.config import CaptainConfig, CaptainData
 from docker_captain.docker import DockerCompose
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 
-DOCKER_COMPOSE_FOLDER = Path(os.path.expanduser("~/Deployments")).resolve()
-COMPOSE_FILENAMES = [
-    "compose.yaml",
-    "compose.yml",
-    "docker-compose.yaml",
-    "docker-compose.yml",
-]
-
 app = typer.Typer(no_args_is_help=True)
 console = Console()
+
+
+captain_config = CaptainConfig.load()
+DOCKER_COMPOSE_FOLDER = (
+    os.getenv("DOCKER_CAPTAIN_PROJECTS_FOLDER") or captain_config.projects_folder
+)
+if not DOCKER_COMPOSE_FOLDER:
+    console.print(
+        "[bold red]Error:[/bold red] Environment variable [cyan]DOCKER_CAPTAIN_PROJECTS_FOLDER[/cyan] is not set.\n"
+        "Please set it to the path containing your Docker Compose projects, e.g.:\n\n"
+        "    export DOCKER_CAPTAIN_FOLDER=/path/to/your/deployments\n"
+    )
+    raise typer.Exit(code=1)
+else:
+    DOCKER_COMPOSE_FOLDER = Path(DOCKER_COMPOSE_FOLDER)
 
 
 # ---------------------------------------------------------------------------
@@ -49,6 +59,12 @@ def discover_projects(root: Path) -> Dict[str, Path]:
     Returns:
         Dict[str, Path]: Mapping from project name to compose file path.
     """
+    COMPOSE_FILENAMES: List[str] = [
+        "compose.yaml",
+        "compose.yml",
+        "docker-compose.yaml",
+        "docker-compose.yml",
+    ]
     projects: Dict[str, Path] = {}
     if not root.exists():
         return projects
