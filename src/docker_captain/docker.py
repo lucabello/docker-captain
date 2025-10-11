@@ -1,3 +1,5 @@
+"""Module to help wrapping 'docker compose' commands."""
+
 import json
 from pathlib import Path
 from typing import List, Literal

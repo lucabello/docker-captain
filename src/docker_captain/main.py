@@ -1,11 +1,6 @@
-#!/usr/bin/env -S uv run -s -q
-# /// script
-# requires-python = "~=3.11"
-# dependencies = ["questionary", "typer", "sh", "rich", "pyyaml"]
-# ///
 """
 docker-captain
-A small CLI wrapper around `docker compose` for projects organized under ~/Deployments/
+A small CLI wrapper around `docker compose`
 """
 
 from __future__ import annotations

@@ -1,6 +1,5 @@
 """Module to help manage configuration and data files."""
 
-# captain_file.py
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, fields, is_dataclass
@@ -11,8 +10,8 @@ import yaml
 from platformdirs import user_config_dir, user_data_dir
 from rich.console import Console
 
-T = TypeVar("T", bound="CaptainFile")
 console = Console()
+T = TypeVar("T", bound="CaptainFile")
 
 
 @dataclass
@@ -40,19 +39,19 @@ class CaptainFile:
         path = Path(path) if path is not None else cls.DEFAULT_PATH
 
         if not path.exists():
-            return cls()  # type: ignore[arg-type]
+            return cls()
 
         try:
             with path.open("r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             console.print(f"[yellow]Warning: Failed to parse {path}: {e}[/yellow]")
-            return cls()  # type: ignore[arg-type]
+            return cls()
 
         # Keep only fields defined on the dataclass
         field_names = {f.name for f in fields(cls)}
         filtered = {k: v for k, v in data.items() if k in field_names}
-        return cls(**filtered)  # type: ignore[arg-type]
+        return cls(**filtered)
 
     def save(self, path: Path | None = None) -> None:
         """
@@ -72,7 +71,7 @@ class CaptainFile:
                     default_flow_style=False,
                     allow_unicode=True,
                 )
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             console.print(f"[yellow]Warning: Failed to write {path}: {e}[/yellow]")
 
 
