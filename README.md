@@ -170,3 +170,25 @@ I stumbled across [jenssegers/captain](https://github.com/jenssegers/captain/), 
 Given Python is my main language and the project hasn't seen any activity in 3 years, I decided to extend its scope and write `docker-captain`.
 
 Hope this is useful to someone, happy sailing! ⛵
+
+---
+
+## 🔧 Development
+
+If you want to contribute to the project, please start by opening an [issue](https://github.com/lucabello/docker-captain/issues).
+
+You can interact with the project via `uv` and the `justfile` (from [casey/just](https://github.com/casey/just)) at the root of the repository.
+Simply run `just` to show the available recipes.
+
+```bash
+# Create a virtual environment for the project
+uv venv --all-groups
+source .venv/bin/activate
+
+# Linting, formatting, etc.
+just  # show the list of all commands
+just lint
+
+# Run docker-captain from the local folder
+uv run docker-captain
+```
