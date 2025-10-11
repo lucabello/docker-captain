@@ -8,9 +8,7 @@ and provides simple commands to start, stop, restart, or list your deployments
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 import questionary
 import typer
@@ -19,8 +17,9 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from docker_captain.config import CaptainConfig, CaptainData
+from docker_captain.config import CaptainData
 from docker_captain.docker import DockerCompose
+from docker_captain.projects import CaptainProject
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -28,86 +27,6 @@ from docker_captain.docker import DockerCompose
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
-
-captain_config = CaptainConfig.load()
-DOCKER_CAPTAIN_PROJECTS_FOLDER = (
-    os.getenv(CaptainConfig.ENVIROMENT["projects_folder"]) or captain_config.projects_folder
-)
-if not DOCKER_CAPTAIN_PROJECTS_FOLDER:
-    console.print(
-        f"[bold red]Error:[/bold red] Please set the path containing your Docker Compose projects.\n"
-        f"Either add it to the {CaptainConfig.DEFAULT_PATH} file, or set with:\n\n"
-        f"    export {CaptainConfig.ENVIROMENT['projects_folder']}=/path/to/your/deployments\n"
-    )
-    exit(code=1)
-DOCKER_CAPTAIN_PROJECTS_FOLDER = Path(DOCKER_CAPTAIN_PROJECTS_FOLDER)
-if not DOCKER_CAPTAIN_PROJECTS_FOLDER.is_absolute():
-    console.print(
-        f"[bold red]Error:[/bold red] The configured projects folder {DOCKER_CAPTAIN_PROJECTS_FOLDER} "
-        "is not an absolute path."
-    )
-    exit(code=2)
-if not DOCKER_CAPTAIN_PROJECTS_FOLDER.exists():
-    console.print(
-        f"[bold red]Error:[/bold red] The configured projects folder {DOCKER_CAPTAIN_PROJECTS_FOLDER} "
-        "does not exist."
-    )
-    exit(code=3)
-DOCKER_CAPTAIN_PROJECTS_FOLDER.mkdir(parents=True, exist_ok=True)
-
-
-# ---------------------------------------------------------------------------
-# Utility functions
-# ---------------------------------------------------------------------------
-
-
-def discover_projects(root: Path = DOCKER_CAPTAIN_PROJECTS_FOLDER) -> Dict[str, Path]:
-    """Discover projects that contain a valid docker compose file.
-
-    Args:
-        root (Path): The root directory containing deployment folders.
-
-    Returns:
-        Dict[str, Path]: Mapping from project name to compose file path.
-    """
-    COMPOSE_FILENAMES: List[str] = [
-        "compose.yaml",
-        "compose.yml",
-        "docker-compose.yaml",
-        "docker-compose.yml",
-    ]
-    projects: Dict[str, Path] = {}
-    if not root.exists():
-        return projects
-    for child in sorted(root.iterdir()):
-        if not child.is_dir():
-            continue
-        for fname in COMPOSE_FILENAMES:
-            candidate = child / fname
-            if candidate.exists() and candidate.is_file():
-                projects[child.name] = candidate
-                break
-    return projects
-
-
-def _require_project_exists(project: str, projects: Dict[str, Path]) -> Path:
-    """Ensure the given project exists among discovered ones.
-
-    Args:
-        project (str): Project name.
-        projects (Dict[str, Path]): Mapping of available projects.
-
-    Returns:
-        Path: Path to the compose file.
-
-    Raises:
-        typer.Exit: If the project does not exist.
-    """
-    if project not in projects:
-        console.print(f"[red]No such project: {project}[/red]")
-        raise typer.Exit(code=2)
-    return projects[project]
-
 
 # ---------------------------------------------------------------------------
 # Commands
@@ -123,11 +42,12 @@ def list(
     Args:
         verbose (bool): If True, also show the compose file path.
     """
-    projects = discover_projects()
+    projects_folder = CaptainProject.projects_folder()
+    projects = CaptainProject.discover_projects()
     captain_data: CaptainData = CaptainData.load()
     running_projects: List[str] = DockerCompose.get_running_projects()
 
-    table = Table(title=f"Projects in {DOCKER_CAPTAIN_PROJECTS_FOLDER}", box=box.SIMPLE_HEAVY)
+    table = Table(title=f"Projects in {projects_folder}", box=box.SIMPLE_HEAVY)
     table.add_column("Project", no_wrap=True)
     table.add_column("Active", justify="center")
     table.add_column("Running", justify="center")
@@ -149,12 +69,13 @@ def list(
 @app.command()
 def manage() -> None:
     """Interactively select which projects are active."""
-    projects = discover_projects()
+    projects_folder = CaptainProject.projects_folder()
+    projects = CaptainProject.discover_projects()
     names = sorted(projects.keys())
     captain_data: CaptainData = CaptainData.load()
 
     if not names:
-        console.print(f"[yellow]No projects found in {DOCKER_CAPTAIN_PROJECTS_FOLDER}.[/yellow]")
+        console.print(f"[yellow]No projects found in {projects_folder}.[/yellow]")
         raise typer.Exit(code=1)
 
     # Build choices with checkmarks for active projects
@@ -187,8 +108,8 @@ def start(
     ),
 ) -> None:
     """Start a single project using `docker compose up`."""
-    projects = discover_projects()
-    compose_file = _require_project_exists(project, projects)
+    projects = CaptainProject.discover_projects()
+    compose_file = CaptainProject.require_project_exists(project, projects)
     rc = DockerCompose.up(
         compose_file=compose_file,
         detach=detach,
@@ -205,8 +126,8 @@ def stop(
     ),
 ) -> None:
     """Stop a single project using `docker compose down`."""
-    projects = discover_projects()
-    compose_file = _require_project_exists(project, projects)
+    projects = CaptainProject.discover_projects()
+    compose_file = CaptainProject.require_project_exists(project, projects)
     rc = DockerCompose.down(
         compose_file=compose_file,
         remove_orphans=remove_orphans,
@@ -219,8 +140,8 @@ def restart(
     project: str = typer.Argument(..., help="Project folder name (e.g. calibre)"),
 ) -> None:
     """Restart a single project using `docker compose restart`."""
-    projects = discover_projects()
-    compose_file = _require_project_exists(project, projects)
+    projects = CaptainProject.discover_projects()
+    compose_file = CaptainProject.require_project_exists(project, projects)
     rc = DockerCompose.restart(compose_file=compose_file)
     raise typer.Exit(code=rc)
 
@@ -233,7 +154,7 @@ def rally(
     ),
 ) -> None:
     """Start all active projects."""
-    projects = discover_projects()
+    projects = CaptainProject.discover_projects()
     captain_data = CaptainData.load()
 
     if not captain_data.active_projects:
@@ -262,7 +183,7 @@ def abandon(
     ),
 ) -> None:
     """Stop all active projects."""
-    projects = discover_projects()
+    projects = CaptainProject.discover_projects()
     captain_data = CaptainData.load()
 
     if not captain_data.active_projects:
