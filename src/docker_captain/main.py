@@ -40,13 +40,19 @@ if not DOCKER_CAPTAIN_PROJECTS_FOLDER:
         f"    export {CaptainConfig.ENVIROMENT['projects_folder']}=/path/to/your/deployments\n"
     )
     exit(code=1)
-DOCKER_CAPTAIN_PROJECTS_FOLDER = Path(DOCKER_CAPTAIN_PROJECTS_FOLDER).absolute()
+DOCKER_CAPTAIN_PROJECTS_FOLDER = Path(DOCKER_CAPTAIN_PROJECTS_FOLDER)
+if not DOCKER_CAPTAIN_PROJECTS_FOLDER.is_absolute():
+    console.print(
+        f"[bold red]Error:[/bold red] The configured projects folder {DOCKER_CAPTAIN_PROJECTS_FOLDER} "
+        "is not an absolute path."
+    )
+    exit(code=2)
 if not DOCKER_CAPTAIN_PROJECTS_FOLDER.exists():
     console.print(
         f"[bold red]Error:[/bold red] The configured projects folder {DOCKER_CAPTAIN_PROJECTS_FOLDER} "
         "does not exist."
     )
-    exit(code=2)
+    exit(code=3)
 DOCKER_CAPTAIN_PROJECTS_FOLDER.mkdir(parents=True, exist_ok=True)
 
 
