@@ -1,7 +1,12 @@
 [project]
 name = "docker-captain"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.2"
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E.*"]
+authors = [
+    {name = "Luca Bello", email = "lusgabello@gmail.com"},
+]
+description = "A friendly CLI to manage multiple Docker Compose deployments with style."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -12,6 +17,12 @@ dependencies = [
     "sh>=2.2.2",
     "typer>=0.19.2",
 ]
+
+[proejct.urls]
+Homepage = "https://github.com/lucabello/docker-captain"
+Repository = "https://github.com/lucabello/docker-captain"
+Issues = "https://github.com/lucabello/docker-captain/issues"
+
 [dependency-groups]
 dev = [
     "pyright>=1.1.406",
