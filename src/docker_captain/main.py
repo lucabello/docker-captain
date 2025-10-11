@@ -204,7 +204,7 @@ def abandon(
 
 
 @app.command()
-def config() -> None:
+def configure() -> None:
     """Interactively write a configuration file."""
     CaptainConfig.interactive()
 
