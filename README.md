@@ -108,6 +108,8 @@ uvx docker-captain
 projects_folder: /path/to/your/deployments  # environment variable: DOCKER_CAPTAIN_PROJECTS_FOLDER
 ```
 
+This configuration file can be generated interactively by running `captain-docker configure`.
+
 ---
 
 
