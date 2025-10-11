@@ -7,7 +7,7 @@ from pathlib import Path
 console = Console()
 
 try:
-    docker_compose: sh.Command = sh.Command("docker", "compose")
+    docker_compose: sh.Command = sh.Command("docker compose")
 except sh.CommandNotFound as e:
     console.print(f"[red]Error: '{e}' not found.[/red]")
     exit(1)
