@@ -53,4 +53,4 @@ release:
         echo "Cancelled."
         exit 1
     fi
-    gh release create v${pyproject_release} --generate-notes --notes-start-tag=v${pyproject_release}
+    gh release create "v${pyproject_release}" --generate-notes --notes-start-tag="${latest_release}"
