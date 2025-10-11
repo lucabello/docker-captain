@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import ClassVar, List, Optional, Type, TypeVar
+from typing import ClassVar, Dict, List, Optional, Type, TypeVar
 
 import yaml
 from platformdirs import user_config_dir, user_data_dir
@@ -82,8 +82,11 @@ class CaptainConfig(CaptainFile):
     DEFAULT_PATH: ClassVar[Path] = (
         Path(user_config_dir(appname="docker-captain", appauthor=False)) / "config.yaml"
     )
+    ENVIROMENT: ClassVar[Dict] = {"projects_folder": "DOCKER_CAPTAIN_PROJECTS_FOLDER"}
 
-    projects_folder: Optional[Path] = None
+    projects_folder: Optional[Path] = field(
+        default=None, metadata={"env": "DOCKER_CAPTAIN_PROJECTS_FOLDER"}
+    )
 
 
 @dataclass

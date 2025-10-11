@@ -36,3 +36,5 @@ members = [
     "docker-captain",
 ]
 
+[tool.ruff]
+line-length = 99

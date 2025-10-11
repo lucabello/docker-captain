@@ -29,20 +29,20 @@ from docker_captain.docker import DockerCompose
 app = typer.Typer(no_args_is_help=True)
 console = Console()
 
-
 captain_config = CaptainConfig.load()
-DOCKER_COMPOSE_FOLDER = (
-    os.getenv("DOCKER_CAPTAIN_PROJECTS_FOLDER") or captain_config.projects_folder
+DOCKER_CAPTAIN_PROJECTS_FOLDER = (
+    os.getenv(CaptainConfig.ENVIROMENT["projects_folder"]) or captain_config.projects_folder
 )
-if not DOCKER_COMPOSE_FOLDER:
+if not DOCKER_CAPTAIN_PROJECTS_FOLDER:
     console.print(
-        "[bold red]Error:[/bold red] Environment variable [cyan]DOCKER_CAPTAIN_PROJECTS_FOLDER[/cyan] is not set.\n"
-        "Please set it to the path containing your Docker Compose projects, e.g.:\n\n"
-        "    export DOCKER_CAPTAIN_FOLDER=/path/to/your/deployments\n"
+        f"[bold red]Error:[/bold red] Please set the path containing your Docker Compose projects.\n"
+        f"Either add it to the {CaptainConfig.DEFAULT_PATH} file, or set with:\n\n"
+        f"    export {CaptainConfig.ENVIROMENT['projects_folder']}=/path/to/your/deployments\n"
     )
-    raise typer.Exit(code=1)
+    exit(code=1)
 else:
-    DOCKER_COMPOSE_FOLDER = Path(DOCKER_COMPOSE_FOLDER)
+    DOCKER_CAPTAIN_PROJECTS_FOLDER = Path(DOCKER_CAPTAIN_PROJECTS_FOLDER)
+DOCKER_CAPTAIN_PROJECTS_FOLDER.mkdir(parents=True, exist_ok=True)
 
 
 # ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ else:
 # ---------------------------------------------------------------------------
 
 
-def discover_projects(root: Path) -> Dict[str, Path]:
+def discover_projects(root: Path = DOCKER_CAPTAIN_PROJECTS_FOLDER) -> Dict[str, Path]:
     """Discover projects that contain a valid docker compose file.
 
     Args:
@@ -105,20 +105,18 @@ def _require_project_exists(project: str, projects: Dict[str, Path]) -> Path:
 
 @app.command()
 def list(
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Show compose file paths."
-    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show compose file paths."),
 ) -> None:
     """List all discovered projects and show which ones are active and running.
 
     Args:
         verbose (bool): If True, also show the compose file path.
     """
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     captain_data: CaptainData = CaptainData.load()
     running_projects: List[str] = DockerCompose.get_running_projects()
 
-    table = Table(title=f"Projects in {DOCKER_COMPOSE_FOLDER}", box=box.SIMPLE_HEAVY)
+    table = Table(title=f"Projects in {DOCKER_CAPTAIN_PROJECTS_FOLDER}", box=box.SIMPLE_HEAVY)
     table.add_column("Project", no_wrap=True)
     table.add_column("Active", justify="center")
     table.add_column("Running", justify="center")
@@ -140,18 +138,17 @@ def list(
 @app.command()
 def manage() -> None:
     """Interactively select which projects are active."""
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     names = sorted(projects.keys())
     captain_data: CaptainData = CaptainData.load()
 
     if not names:
-        console.print(f"[yellow]No projects found in {DOCKER_COMPOSE_FOLDER}.[/yellow]")
+        console.print(f"[yellow]No projects found in {DOCKER_CAPTAIN_PROJECTS_FOLDER}.[/yellow]")
         raise typer.Exit(code=1)
 
     # Build choices with checkmarks for active projects
     choices = [
-        Choice(title=n, value=n, checked=(n in captain_data.active_projects))
-        for n in names
+        Choice(title=n, value=n, checked=(n in captain_data.active_projects)) for n in names
     ]
 
     answer = questionary.checkbox(
@@ -164,7 +161,6 @@ def manage() -> None:
         raise typer.Exit(code=0)
 
     captain_data.active_projects = sorted(answer)
-    DOCKER_COMPOSE_FOLDER.mkdir(parents=True, exist_ok=True)
     captain_data.save()
     console.print(
         f"[green]Saved {len(captain_data.active_projects)} active project(s) to {captain_data.DEFAULT_PATH}[/green]"
@@ -174,15 +170,13 @@ def manage() -> None:
 @app.command()
 def start(
     project: str = typer.Argument(..., help="Project folder name (e.g. calibre)"),
-    detach: bool = typer.Option(
-        False, "-d", "--detach", help="Run `docker compose up --detach`"
-    ),
+    detach: bool = typer.Option(False, "-d", "--detach", help="Run `docker compose up --detach`"),
     remove_orphans: bool = typer.Option(
         False, "--remove-orphans", help="Include --remove-orphans"
     ),
 ) -> None:
     """Start a single project using `docker compose up`."""
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     compose_file = _require_project_exists(project, projects)
     rc = DockerCompose.up(
         compose_file=compose_file,
@@ -200,7 +194,7 @@ def stop(
     ),
 ) -> None:
     """Stop a single project using `docker compose down`."""
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     compose_file = _require_project_exists(project, projects)
     rc = DockerCompose.down(
         compose_file=compose_file,
@@ -214,7 +208,7 @@ def restart(
     project: str = typer.Argument(..., help="Project folder name (e.g. calibre)"),
 ) -> None:
     """Restart a single project using `docker compose restart`."""
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     compose_file = _require_project_exists(project, projects)
     rc = DockerCompose.restart(compose_file=compose_file)
     raise typer.Exit(code=rc)
@@ -228,7 +222,7 @@ def rally(
     ),
 ) -> None:
     """Start all active projects."""
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     captain_data = CaptainData.load()
 
     if not captain_data.active_projects:
@@ -257,7 +251,7 @@ def abandon(
     ),
 ) -> None:
     """Stop all active projects."""
-    projects = discover_projects(DOCKER_COMPOSE_FOLDER)
+    projects = discover_projects()
     captain_data = CaptainData.load()
 
     if not captain_data.active_projects:
@@ -272,9 +266,7 @@ def abandon(
             console.print(f"[red]Skipping {name}: project not found.[/red]")
             exit_code = exit_code or 1
             continue
-        rc = DockerCompose.down(
-            compose_file=projects[name], remove_orphans=remove_orphans
-        )
+        rc = DockerCompose.down(compose_file=projects[name], remove_orphans=remove_orphans)
         exit_code = exit_code or rc
     raise typer.Exit(code=exit_code)
 
