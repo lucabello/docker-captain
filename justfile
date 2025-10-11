@@ -42,4 +42,4 @@ clean:
 # Release to PyPi
 [group("release")]
 release: clean build
-    # uv publish?
+    uv publish
