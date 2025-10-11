@@ -1,8 +1,12 @@
 # ⚓ docker-captain
 
-**docker-captain** is a friendly command-line tool that helps you manage multiple Docker Compose projects under a single folder.  
+[![PyPi Release](https://img.shields.io/pypi/v/docker-captain?label=PyPi&color=blue)](https://pypi.org/project/docker-captain/)
+[![GitHub Release](https://img.shields.io/github/v/release/lucabello/docker-captain?label=GitHub&color=blue)](https://github.com/lucabello/docker-captain/releases)
+[![Publish to PyPi](https://github.com/lucabello/docker-captain/actions/workflows/publish.yaml/badge.svg)](https://github.com/lucabello/docker-captain/actions/workflows/publish.yaml)
+![Commits Since Release](https://img.shields.io/github/commits-since/lucabello/docker-captain/latest?label=Commits%20since%20last%20release&color=darkgreen)
 
-It's powered by [Typer](https://typer.tiangolo.com/), [Questionary](https://github.com/tmbo/questionary), and [sh](https://amoffat.github.io/sh/).
+
+**docker-captain** is a friendly command-line tool that helps you manage multiple Docker Compose projects under a single folder.
 
 ---
 
