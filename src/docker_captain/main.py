@@ -17,7 +17,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from docker_captain.config import CaptainData
+from docker_captain.config import CaptainConfig, CaptainData
 from docker_captain.docker import DockerCompose
 from docker_captain.projects import CaptainProject
 
@@ -201,6 +201,12 @@ def abandon(
         rc = DockerCompose.down(compose_file=projects[name], remove_orphans=remove_orphans)
         exit_code = exit_code or rc
     raise typer.Exit(code=exit_code)
+
+
+@app.command()
+def config() -> None:
+    """Interactively write a configuration file."""
+    CaptainConfig.interactive()
 
 
 # ---------------------------------------------------------------------------

@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, Type, TypeVar
 
+import questionary
 import yaml
 from platformdirs import user_config_dir, user_data_dir
 from rich.console import Console
@@ -87,6 +88,20 @@ class CaptainConfig(CaptainFile):
     projects_folder: Optional[Path] = field(
         default=None, metadata={"env": "DOCKER_CAPTAIN_PROJECTS_FOLDER"}
     )
+
+    @classmethod
+    def interactive(cls) -> None:
+        """Interactively write a configuration file."""
+        config = cls()
+        try:
+            config.projects_folder = questionary.text(
+                "projects_folder", instruction="(absolute path)"
+            ).ask()
+        except Exception as e:
+            console.print(f"[red]Error when processing user input: {e}[/red]")
+            exit(code=1)
+        console.print(f"[green]Saving configuration to {config.DEFAULT_PATH}[/green]")
+        config.save()
 
 
 @dataclass
