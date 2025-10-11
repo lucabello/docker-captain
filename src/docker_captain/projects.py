@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import typer
 from rich.console import Console
@@ -46,7 +46,7 @@ class CaptainProject:
         return folder
 
     @staticmethod
-    def discover_projects(root: Path = projects_folder()) -> Dict[str, Path]:
+    def discover_projects(root: Optional[Path] = None) -> Dict[str, Path]:
         """Discover projects that contain a valid docker compose file.
 
         Args:
@@ -62,6 +62,7 @@ class CaptainProject:
             "docker-compose.yml",
         ]
         projects: Dict[str, Path] = {}
+        root = root or CaptainProject.projects_folder()
         if not root.exists():
             return projects
         for child in sorted(root.iterdir()):
