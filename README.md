@@ -90,7 +90,7 @@ These commands behave like `start` and `stop`, but apply to every active project
 
 ## 📦 Installation
 
-You can install dependencies using `uv`, `pipx`, or plain `pip`.
+You can install `docker-captain` using `uv`, `pipx`, or plain `pip`.
 
 ```bash
 # Install with
