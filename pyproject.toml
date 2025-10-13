@@ -49,3 +49,7 @@ members = [
 
 [tool.ruff]
 line-length = 99
+
+
+[lint.pydocstyle]
+convention = "google"
