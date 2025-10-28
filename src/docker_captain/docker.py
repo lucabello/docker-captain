@@ -102,7 +102,8 @@ class DockerCompose:
         """
         console.rule(f"[bold blue]{action.upper()} {compose_file.parent.name}[/bold blue]")
         try:
-            sh.docker.compose(f'--file="{compose_file}"', action, _fg=True, **kwargs)  # pyright: ignore[reportAttributeAccessIssue]
+            docker_compose = sh.Command("docker").bake(file=compose_file).bake("compose")
+            docker_compose(action, _fg=True, **kwargs)
             console.print(
                 f":white_check_mark: [green]{action} succeeded for {compose_file.parent.name}[/green]"
             )
