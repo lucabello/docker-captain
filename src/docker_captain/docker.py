@@ -104,6 +104,7 @@ class DockerCompose:
         try:
             docker_compose = sh.Command("docker").bake("compose").bake(file=compose_file)
             docker_compose = docker_compose.bake(action, **kwargs)
+            console.print(f"{kwargs}")
             docker_compose(_fg=True)
             console.print(
                 f":white_check_mark: [green]{action} succeeded for {compose_file.parent.name}[/green]"
