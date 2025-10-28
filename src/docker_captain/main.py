@@ -148,7 +148,6 @@ def restart(
 
 @app.command()
 def rally(
-    detach: bool = typer.Option(False, "-d", "--detach", help="Run with --detach"),
     remove_orphans: bool = typer.Option(
         False, "--remove-orphans", help="Include --remove-orphans"
     ),
@@ -170,7 +169,7 @@ def rally(
             exit_code = exit_code or 1
             continue
         rc = DockerCompose.up(
-            compose_file=projects[name], detach=detach, remove_orphans=remove_orphans
+            compose_file=projects[name], detach=True, remove_orphans=remove_orphans
         )
         exit_code = exit_code or rc
     raise typer.Exit(code=exit_code)
