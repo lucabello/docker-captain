@@ -103,7 +103,8 @@ class DockerCompose:
         console.rule(f"[bold blue]{action.upper()} {compose_file.parent.name}[/bold blue]")
         try:
             docker_compose = sh.Command("docker").bake("compose").bake(file=compose_file)
-            docker_compose(action, **kwargs, _fg=True)
+            docker_compose = docker_compose.bake(action, **kwargs)
+            docker_compose(_fg=True)
             console.print(
                 f":white_check_mark: [green]{action} succeeded for {compose_file.parent.name}[/green]"
             )
