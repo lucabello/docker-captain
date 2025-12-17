@@ -2,7 +2,7 @@
 name = "docker-captain"
 version = "0.1.4"
 license = "Apache-2.0"
-license-files = ["LICEN[CS]E.*"]
+license-files = ["LICEN[CS]E*"]
 authors = [
     {name = "Luca Bello", email = "lusgabello@gmail.com"},
 ]
