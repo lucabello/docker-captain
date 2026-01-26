@@ -4,6 +4,11 @@ set shell := ["bash", "-c"]
 default:
   just --list
 
+# Update uv.lock dependencies
+[group("dev")]
+lock:
+    uv lock --upgrade --no-cache
+
 # Lint the codebase using ruff
 [group("dev")]
 lint:
@@ -38,6 +43,13 @@ clean:
     rm -rf build dist *.egg-info
     # Remove coverage reports
     rm -f .coverage coverage.xml
+
+# Bump the version in pyproject.toml
+[group("release")]
+[arg("level", pattern="^(major|minor|patch)$")]
+bump level:
+    #!/usr/bin/env bash
+    uv version --bump={{level}}
 
 # Create a GitHub release (which will trigger a PyPi release)
 [group("release")]
