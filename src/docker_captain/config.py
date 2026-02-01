@@ -83,7 +83,7 @@ class CaptainConfig(CaptainFile):
     DEFAULT_PATH: ClassVar[Path] = (
         Path(user_config_dir(appname="docker-captain", appauthor=False)) / "config.yaml"
     )
-    ENVIROMENT: ClassVar[Dict] = {"projects_folder": "DOCKER_CAPTAIN_PROJECTS_FOLDER"}
+    ENVIRONMENT: ClassVar[Dict] = {"projects_folder": "DOCKER_CAPTAIN_PROJECTS_FOLDER"}
 
     projects_folder: Optional[Path] = field(
         default=None, metadata={"env": "DOCKER_CAPTAIN_PROJECTS_FOLDER"}

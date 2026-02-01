@@ -20,14 +20,14 @@ class CaptainProject:
         """
         captain_config = CaptainConfig.load()
         folder = (
-            os.getenv(CaptainConfig.ENVIROMENT["projects_folder"])
+            os.getenv(CaptainConfig.ENVIRONMENT["projects_folder"])
             or captain_config.projects_folder
         )
         if not folder:
             console.print(
                 f"[bold red]Error:[/bold red] Please set the path containing your Docker Compose projects.\n"
                 f"Either add it to the {CaptainConfig.DEFAULT_PATH} file, or set with:\n\n"
-                f"    export {CaptainConfig.ENVIROMENT['projects_folder']}=/path/to/your/deployments\n"
+                f"    export {CaptainConfig.ENVIRONMENT['projects_folder']}=/path/to/your/deployments\n"
             )
             exit(code=1)
         folder = Path(folder)

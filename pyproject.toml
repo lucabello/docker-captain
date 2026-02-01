@@ -1,13 +1,12 @@
 [project]
 name = "docker-captain"
 version = "0.1.5"
-license = "Apache-2.0"
-license-files = ["LICEN[CS]E*"]
+description = "A friendly CLI to manage multiple Docker Compose deployments with style."
 authors = [
     {name = "Luca Bello", email = "lusgabello@gmail.com"},
 ]
-description = "A friendly CLI to manage multiple Docker Compose deployments with style."
 readme = "README.md"
+license-files = ["LICEN[CS]E*"]
 requires-python = ">=3.10"
 dependencies = [
     "platformdirs>=4.5.0",
@@ -18,20 +17,31 @@ dependencies = [
     "typer>=0.19.2",
 ]
 
-[project.urls]
-Homepage = "https://github.com/lucabello/docker-captain"
-Repository = "https://github.com/lucabello/docker-captain"
-Issues = "https://github.com/lucabello/docker-captain/issues"
-
 [dependency-groups]
 dev = [
-    "pyright>=1.1.406",
-    "ruff>=0.14.0",
+    "ruff>=0.14.14",
+    "pyright>=1.1.408",
+    "codespell>=2.4.1",
+    "vulture>=2.14",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-sugar>=1.1.1",
+    "actionlint-py>=1.7.10.24",
+    "uv-secure>=0.15.4",
 ]
+
+[project.urls]
+Homepage = "https://github.com/lucabello/docker-captain"
+Documentation = "https://github.com/lucabello/docker-captain"
+Repository = "https://github.com/lucabello/docker-captain"
+Issues = "https://github.com/lucabello/docker-captain/issues"
+Changelog = "https://github.com/lucabello/docker-captain/releases"
 
 [project.scripts]
 docker-captain = "docker_captain.main:main"
 
+
+# Building and publishing
 [build-system]
 requires = ["uv_build>=0.9.2,<0.10.0"]
 build-backend = "uv_build"
@@ -47,9 +57,16 @@ members = [
     "docker-captain",
 ]
 
+# Tools configuration
 [tool.ruff]
 line-length = 99
 
-
-[lint.pydocstyle]
+[tool.lint.pydocstyle]
 convention = "google"
+
+[tool.codespell]
+skip = ".git,build,venv*"
+ignore-words-list = "assertIn"
+
+[tool.vulture]
+min_confidence = 80
